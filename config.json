@@ -1,0 +1,37 @@
+{
+    "default": {
+        "colour": "FFFFFF",
+        "brightness": 32,
+        "player-leds": "00000"
+    },
+    "gradient": [
+        {
+            "threshold": 100,
+            "colour": "008923"
+        },
+        {
+            "threshold": 80,
+            "colour": "33a700"
+        },
+        {
+            "threshold": 60,
+            "colour": "abc400"
+        },
+        {
+            "threshold": 40,
+            "colour": "e27f00"
+        },
+        {
+            "threshold": 20,
+            "colour": "ff0000"
+        },
+        {
+            "threshold": 10,
+            "colour": "ff0000",
+            "brightness": 255
+        }
+    ],
+    "daemon": {
+        "interval": 60
+    }
+}

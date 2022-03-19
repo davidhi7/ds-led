@@ -1,0 +1,8 @@
+[build-system]
+requires = ["flit", "wheel"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "ds_led"
+version = "0.1"
+description = "Python daemon that configures the lightbar of the PS5 DualSense controller to indicate the battery level."

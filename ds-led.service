@@ -1,0 +1,9 @@
+[Unit]
+Description=DualSense led controller daemon
+
+[Service]
+ExecStart=python -m ds_led
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
