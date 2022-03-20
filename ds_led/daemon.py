@@ -6,7 +6,7 @@ from ds_led.lib.config import Config, ConfigEntry
 
 class Daemon:
 
-    def search_controllers(self, controllers: iter):
+    def search_controllers(self, controllers: list) -> list:
         """Update the provided list of controller objects."""
         # Remove no longer connected controllers from the list
         for curent_controller in controllers:

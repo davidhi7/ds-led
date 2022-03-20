@@ -1,7 +1,7 @@
 import subprocess
 from pathlib import Path
 from ds_led.lib.errors import IllegalArgumentError
-from ds_led.lib.config import ConfigEntry
+from ds_led.lib.config import ConfigEntry, Colour
 
 class DualSense:
 
@@ -14,7 +14,7 @@ class DualSense:
     player_leds = None
     last_battery_perc = -1
 
-    def __init__(self, battery_dev):
+    def __init__(self, battery_dev: Path):
         """Initialise new controller object. 'battery_dev' must be a path matching '/sys/class/power_supply/ps-controller-battery-*'."""
         self.power_supply = battery_dev
         self.device = battery_dev / 'device'
@@ -46,7 +46,7 @@ class DualSense:
             else:
                 return self.CONTROLLER_DISCHARGING
 
-    def set_rgb_colour(self, colour):
+    def set_rgb_colour(self, colour: Colour):
         """Set the colour of the builtin RGB LED."""
         # Order of the red, green, blue values is provided by the file 'multi_index'.
         pattern = 'red green blue'
@@ -56,7 +56,7 @@ class DualSense:
         with open(self.rgb_led / 'multi_intensity', 'w') as file:
             file.write(values)
 
-    def set_rgb_brightness(self, brightness):
+    def set_rgb_brightness(self, brightness: int):
         """Set the brightness of the builtin RGB LED."""
         min_brightness = 0
         max_brightness = 255
@@ -68,7 +68,7 @@ class DualSense:
         with open(self.rgb_led / 'brightness', 'w') as file:
             file.write(str(brightness))
 
-    def set_player_leds(self, player_leds):
+    def set_player_leds(self, player_leds: int):
         """Set the status of each of the 5 player leds."""
         # use of bitwise operators might seem unnecessary complicated but I finally found a usage for them and I didn't want to miss it
         if player_leds >> 5 != 0:
@@ -79,6 +79,7 @@ class DualSense:
                 file.write(str((player_leds >> n) & 1))
     
     def apply_config(self, config: ConfigEntry):
+        """Apply lightbar colour, brightness and player led status as specified in th config entry."""
         self.set_rgb_colour(config.colour)
         self.set_rgb_brightness(config.brightness)
         self.set_player_leds(config.player_leds)

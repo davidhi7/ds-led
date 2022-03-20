@@ -20,21 +20,22 @@ class Colour:
     def __str__(self):
         return f'rgb({self.red},{self.green},{self.blue})'
 
-# TODO better class name
 class ConfigEntry:
 
-    def __init__(self, threshold, colour, brightness, player_leds):
+    def __init__(self, threshold: int, colour: Colour, brightness: int, player_leds: int):
+        """Create config entry object specifying a state of the controller configuration in a specific battery level range.
+        Such a state contains colour and brightness of the lightbar, the player led status and the upper threshold of the battery level."""
         self.threshold = threshold
         self.colour = colour
         self.brightness = brightness
         self.player_leds = player_leds
 
-# TODO separate led logic from config class
 class Config:
     
     table = list()
 
     def __init__(self, config_file: Path):
+        """Create wrapper for the configuration file."""
         if not config_file.is_file():
             raise IllegalArgumentError('Provided configuration file is not a valid file')
         config = None
@@ -50,7 +51,8 @@ class Config:
             self.table.append(ConfigEntry(threshold, colour, brightness, player_leds))
         self.config = config
     
-    def get_values(self, battery_perc: int):
+    def get_values(self, battery_perc: int) -> ConfigEntry:
+        """Return the ConfigEntry object for the given battery level."""
         for entry in self.table:
             if battery_perc <= entry.threshold:
                 return entry
