@@ -14,10 +14,12 @@ class DualSense:
     player_leds = None
     last_battery_perc = -1
 
-    def __init__(self, battery_dev: Path):
-        """Initialise new controller object. 'battery_dev' must be a path matching '/sys/class/power_supply/ps-controller-battery-*'."""
-        self.power_supply = battery_dev
-        self.device = battery_dev / 'device'
+    def __init__(self, power_supply_path: Path):
+        """Initialise new controller object. 'power_supply_path' must be a path matching '/sys/class/power_supply/ps-controller-battery-*'."""
+        self.power_supply = power_supply_path
+        # resolve linked path which is significant longer though.
+        #self.device = (power_supply_path / 'device').resolve()
+        self.device = power_supply_path / 'device'
         self.rgb_led = Path(subprocess.run(f"find {self.device}/leds -maxdepth 1 -name 'input*:rgb:indicator' | sed -z '$ s/\\n$//'", shell=True, capture_output=True, text=True).stdout)
         self.player_leds = [Path(led) for led in subprocess.run(f"find {self.device}/leds -maxdepth 1 -name 'input*:white:player-*' | sort -nr | sed -z '$ s/\\n$//'", shell=True, capture_output=True, text=True).stdout.split('\n')]
         print(f"New controller '{self.device}' connected.")
@@ -79,7 +81,7 @@ class DualSense:
                 file.write(str((player_leds >> n) & 1))
     
     def apply_config(self, config: ConfigEntry):
-        """Apply lightbar colour, brightness and player led status as specified in th config entry."""
+        """Apply lightbar colour, brightness and player led status as specified in the ConfigEntry."""
         self.set_rgb_colour(config.colour)
         self.set_rgb_brightness(config.brightness)
         self.set_player_leds(config.player_leds)

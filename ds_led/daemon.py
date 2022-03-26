@@ -30,8 +30,8 @@ class Daemon:
             controllers = self.search_controllers(controllers)
             for controller in controllers:
                 battery_perc = controller.read_battery()
-                if controller.last_battery_perc != battery_perc:
-                    print(f'{controller.device}: Battery level: {battery_perc}')
+                if controller.last_battery_perc != battery_perc or bool(config['daemon']['require battery change']) == False:
+                    print(f'{controller.power_supply}: Battery level: {battery_perc}')
                     controller.last_battery_perc = battery_perc
                     controller.apply_config(config.get_values(battery_perc))
             time.sleep(interval)
