@@ -1,8 +1,11 @@
 import subprocess
 import time
+import logging
 from pathlib import Path
 from ds_led.lib.controller import DualSense
 from ds_led.lib.config import Config, ConfigEntry
+
+logger = logging.getLogger(__name__)
 
 class Daemon:
 
@@ -30,8 +33,11 @@ class Daemon:
             controllers = self.search_controllers(controllers)
             for controller in controllers:
                 battery_perc = controller.read_battery()
-                if controller.last_battery_perc != battery_perc or bool(config['daemon']['require battery change']) == False:
-                    print(f'{controller.power_supply}: Battery level: {battery_perc}')
+                if controller.last_battery_perc != battery_perc or bool(config.config['daemon']['require battery change']) == False:
+                    if controller.last_battery_perc != battery_perc:
+                        logger.info(f'{controller.power_supply}: Battery level: {battery_perc}')
                     controller.last_battery_perc = battery_perc
-                    controller.apply_config(config.get_values(battery_perc))
+                    controller_config = config.get_values(battery_perc)
+                    logger.debug(f'Applying configuration {controller_config}')
+                    controller.apply_config(controller_config)
             time.sleep(interval)

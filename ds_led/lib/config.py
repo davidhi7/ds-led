@@ -18,7 +18,7 @@ class Colour:
             raise IllegalArgumentError('Invalid hexadecimal colour representation given.')
 
     def __str__(self):
-        return f'rgb({self.red},{self.green},{self.blue})'
+        return f'rgb({self.red}, {self.green}, {self.blue})'
 
 class ConfigEntry:
 
@@ -29,6 +29,9 @@ class ConfigEntry:
         self.colour = colour
         self.brightness = brightness
         self.player_leds = player_leds
+
+    def __str__(self):
+        return f'ConfigEntry(threshold={self.threshold}%, colour={self.colour}, brightness={self.brightness}, player-leds={self.player_leds})'
 
 class Config:
     

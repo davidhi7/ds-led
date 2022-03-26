@@ -1,7 +1,10 @@
+import logging
 import subprocess
 from pathlib import Path
 from ds_led.lib.errors import IllegalArgumentError
 from ds_led.lib.config import ConfigEntry, Colour
+
+logger = logging.getLogger(__name__)
 
 class DualSense:
 
@@ -22,7 +25,7 @@ class DualSense:
         self.device = power_supply_path / 'device'
         self.rgb_led = Path(subprocess.run(f"find {self.device}/leds -maxdepth 1 -name 'input*:rgb:indicator' | sed -z '$ s/\\n$//'", shell=True, capture_output=True, text=True).stdout)
         self.player_leds = [Path(led) for led in subprocess.run(f"find {self.device}/leds -maxdepth 1 -name 'input*:white:player-*' | sort -nr | sed -z '$ s/\\n$//'", shell=True, capture_output=True, text=True).stdout.split('\n')]
-        print(f"New controller '{self.device}' connected.")
+        logger.info(f"New controller '{self.device}' connected.")
 
     def verify_connection(self):
         """Test whether the connection to the controller is still present. Return True if so, otherwise False."""
@@ -30,7 +33,7 @@ class DualSense:
         try:
             self.read_battery()
         except FileNotFoundError:
-            print(f"Controller '{self.device}' is not connected anymore.")
+            logger.info(f"Controller '{self.device}' is not connected anymore.")
             return False
         return True
     
