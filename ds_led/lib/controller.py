@@ -1,21 +1,21 @@
 import logging
 import subprocess
 from pathlib import Path
+from ds_led.lib.config import Colour
 from ds_led.lib.errors import IllegalArgumentError
-from ds_led.lib.config import ConfigEntry, Colour
 
 logger = logging.getLogger(__name__)
 
-class DualSense:
+CONTROLLER_CHARGING = 'Charging'
+CONTROLLER_DISCHARGING = 'Discharging'
 
-    CONTROLLER_CHARGING = 'Charging'
-    CONTROLLER_DISCHARGING = 'Discharging'
+class DualSense:
 
     power_supply = None
     device = None
     rgb_led = None
     player_leds = None
-    last_battery_perc = -1
+    last_queried_battery = -1
 
     def __init__(self, power_supply_path: Path):
         """Initialise new controller object. 'power_supply_path' must be a path matching '/sys/class/power_supply/ps-controller-battery-*'."""
@@ -31,13 +31,13 @@ class DualSense:
         """Test whether the connection to the controller is still present. Return True if so, otherwise False."""
         # try to read battery level. If the file containing the value no longer exists, the controller is most likely not connected anymore.
         try:
-            self.read_battery()
+            self.get_battery()
         except FileNotFoundError:
             logger.info(f"Controller '{self.device}' is not connected anymore.")
             return False
         return True
     
-    def read_battery(self):
+    def get_battery(self):
         """Read the battery level of the controller."""
         with open(self.power_supply / 'capacity', 'r') as file:
             return int(file.read())
@@ -46,10 +46,10 @@ class DualSense:
         """Return the status of the battery. Possible values: 'Charging' and 'Discharging'."""
         with open(self.power_supply / 'status', 'r') as file:
             value = file.read()
-            if value.startswith(self.CONTROLLER_CHARGING):
-                return self.CONTROLLER_CHARGING
+            if value.startswith(CONTROLLER_CHARGING):
+                return CONTROLLER_CHARGING
             else:
-                return self.CONTROLLER_DISCHARGING
+                return CONTROLLER_DISCHARGING
 
     def set_rgb_colour(self, colour: Colour):
         """Set the colour of the builtin RGB LED."""
@@ -82,9 +82,11 @@ class DualSense:
         for n in range(0, 5):
             with open(self.player_leds[n] / 'brightness', 'w') as file:
                 file.write(str((player_leds >> n) & 1))
-    
-    def apply_config(self, config: ConfigEntry):
-        """Apply lightbar colour, brightness and player led status as specified in the ConfigEntry."""
-        self.set_rgb_colour(config.colour)
-        self.set_rgb_brightness(config.brightness)
-        self.set_player_leds(config.player_leds)
+
+    def test_battery_change(self) -> bool:
+        """Test whether the battery level has changed since the last call of this method."""
+        new_battery = self.get_battery()
+        if self.last_queried_battery != new_battery:
+            self.last_queried_battery = new_battery
+            return True
+        return False

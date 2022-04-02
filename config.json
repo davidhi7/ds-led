@@ -4,7 +4,7 @@
         "brightness": 32,
         "player-leds": "00000"
     },
-    "gradient": [
+    "discharging": [
         {
             "threshold": 100,
             "colour": "298700"
@@ -29,6 +29,16 @@
             "threshold": 10,
             "colour": "ff0000",
             "brightness": 255
+        }
+    ],
+    "charging": [
+        {
+            "threshold": 0,
+            "player-leds": "00100"
+        },
+        {
+            "threshold": 100,
+            "player-leds": "11111"
         }
     ],
     "daemon": {

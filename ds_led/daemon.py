@@ -3,7 +3,8 @@ import time
 import logging
 from pathlib import Path
 from ds_led.lib.controller import DualSense
-from ds_led.lib.config import Config, ConfigEntry
+from ds_led.lib.config import Config, ControllerSetting
+from ds_led.lib.controllerconfig import ControllerConfig
 
 logger = logging.getLogger(__name__)
 
@@ -28,16 +29,17 @@ class Daemon:
         """Start the daemon."""
         controllers = []
         config = Config(config_path)
-        interval = int(config.config['daemon']['interval'])
+        controller_config = ControllerConfig(config)
+        # Interval between two iterations
+        interval = int(config.data['daemon']['interval'])
+        # if True, only write controller settings on battery level change
+        battery_change_required = bool(config.data['daemon']['require battery change'])
         while True:
             controllers = self.search_controllers(controllers)
             for controller in controllers:
-                battery_perc = controller.read_battery()
-                if controller.last_battery_perc != battery_perc or bool(config.config['daemon']['require battery change']) == False:
-                    if controller.last_battery_perc != battery_perc:
-                        logger.info(f'{controller.power_supply}: Battery level: {battery_perc}')
-                    controller.last_battery_perc = battery_perc
-                    controller_config = config.get_values(battery_perc)
-                    logger.debug(f'Applying configuration {controller_config}')
-                    controller.apply_config(controller_config)
+                battery_status_change = controller.test_battery_change()
+                if battery_status_change or not battery_change_required:
+                    if battery_status_change:
+                        logger.info(f'{controller.power_supply}: Battery level: {controller.get_battery()}')
+                    controller_config.apply_config(controller)
             time.sleep(interval)
