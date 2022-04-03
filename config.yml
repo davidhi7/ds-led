@@ -11,7 +11,8 @@ controller:
     colour: "FFFFFF"
     brightness: 128
     player-leds: "00000"
-  # 
+
+  # Values applied when the controller is discharging. The setting with the highest threshold greater than or equal to the battery level is chosen.
   discharging:
     - 100:
         colour: "001000"
@@ -24,7 +25,8 @@ controller:
     - 10:
         colour: "FF0000"
         brightness: 255
-    
+
+  # Values applied when the controller is charging (including full battery). The setting with the highest threshold greater than or equal to the battery level is chosen.
   charging:
     - 0:
         player-leds: "00100"
