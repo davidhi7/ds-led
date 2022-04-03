@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 CONTROLLER_CHARGING = 'Charging'
 CONTROLLER_DISCHARGING = 'Discharging'
+CONTROLLER_FULL = 'Full'
 
 class DualSense:
 
@@ -43,13 +44,9 @@ class DualSense:
             return int(file.read())
             
     def get_status(self):
-        """Return the status of the battery. Possible values: 'Charging' and 'Discharging'."""
+        """Return the status of the battery. Possible values: 'Charging', 'Discharging' and 'Full'."""
         with open(self.power_supply / 'status', 'r') as file:
-            value = file.read()
-            if value.startswith(CONTROLLER_CHARGING):
-                return CONTROLLER_CHARGING
-            else:
-                return CONTROLLER_DISCHARGING
+            return file.read().rstrip()
 
     def set_rgb_colour(self, colour: Colour):
         """Set the colour of the builtin RGB LED."""
