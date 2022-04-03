@@ -17,9 +17,15 @@ class Colour:
             self.blue = int(hex_str[4:6], 16)
         except ValueError:
             raise IllegalArgumentError(f"'{hex_str}': Invalid hexadecimal colour representation  given.")
+    
+    def to_hex_str(self):
+        return f'#{(self.red << 16) + (self.green << 8) + self.blue:06x}'
 
     def __str__(self):
-        return f'rgb({self.red}, {self.green}, {self.blue})'
+        # rgb colour notation
+        #return f'rgb({self.red}, {self.green}, {self.blue})'
+        # hexadecimal colour notation, shorter
+        return self.to_hex_str()
 
 class ControllerSetting:
 
