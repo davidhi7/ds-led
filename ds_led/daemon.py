@@ -33,7 +33,7 @@ class Daemon:
         # Interval between two iterations
         interval = int(config.data['daemon']['interval'])
         # if True, only write controller settings on battery level change
-        battery_change_required = bool(config.data['daemon']['require battery change'])
+        battery_change_required = bool(config.data['daemon']['require_battery_change'])
         while True:
             controllers = self.search_controllers(controllers)
             for controller in controllers:

@@ -1,0 +1,32 @@
+daemon:
+  # Interval between checking the battery and writing controller settings
+  interval: 15
+  # If False, write controller settings even if the battery level did not change since the last time.
+  # Useful to overwrite Steams attempt to manage the controller lightbar on its own.
+  require_battery_change: false
+
+controller:
+  # Default values to be used as fallback if no more specific values are found.
+  default:
+    colour: "FFFFFF"
+    brightness: 128
+    player-leds: "00000"
+  # 
+  discharging:
+    - 100:
+        colour: "001000"
+    - 60: 
+        colour: "104000"
+    - 40:
+        colour: "404000"
+    - 20:
+        colour: "800000"
+    - 10:
+        colour: "FF0000"
+        brightness: 255
+    
+  charging:
+    - 0:
+        player-leds: "00100"
+    - 100:
+        player-leds: "11111"

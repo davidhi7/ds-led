@@ -8,18 +8,26 @@ class ControllerConfig:
     
     def __init__(self, config):
         self.config = config
-        self.default = self.parse_setting(config.data['default'])
-        self.table_discharging = self.parse_settings_list( sorted(config.data['discharging'], key=lambda d: d['threshold']) )
-        if 'charging' in config.data:
-            self.table_charging = self.parse_settings_list( sorted(config.data['charging'], key=lambda d: d['threshold'], reverse=True) )
+        controller_config = config.data['controller']
+        self.default = self.parse_setting(controller_config['default'])
+        if 'discharging' in controller_config:
+            self.table_discharging = sorted(self.parse_settings_list(controller_config['discharging']), reverse=True)
+        if 'charging' in controller_config:
+            self.table_charging = sorted(self.parse_settings_list(controller_config['charging']), reverse=False)
         self.config = config
 
     def parse_settings_list(self, settings_list: dict) -> list:
-        return [self.parse_setting(setting) for setting in settings_list]
+        """Parse list of 'threshold: Setting' configurations, returning an unsorted dictionary."""
+        settings_dict = dict()
+        for setting in settings_list:
+            key = list(setting.keys())[0]
+            value = self.parse_setting(setting[key])
+            settings_dict[key] = value
+        return settings_dict.items()
     
     def parse_setting(self, setting: dict) -> ControllerSetting:
+        """Parse"""
         return ControllerSetting(
-            setting.get('threshold', 100),
             Colour(setting.get('colour')) if 'colour' in setting else None,
             setting.get('brightness'),
             int(setting.get('player-leds'), 2) if 'player-leds' in setting else None
@@ -28,14 +36,14 @@ class ControllerConfig:
     def get_setting(self, battery_perc: int, charging: str) -> ControllerSetting:
         """Return the ControllerSetting object for the given battery level and status (DualSense.CHARGING or DualSense.DISCHARGING)."""
         if charging == CONTROLLER_DISCHARGING:
-            for entry in self.table_discharging:
-                if battery_perc <= entry.threshold:
-                    return entry.fallback(self.default)
+            for threshold, setting in self.table_discharging:
+                if battery_perc >= threshold:
+                    return setting.fallback(self.default)
         else:
             fallback = self.get_setting(battery_perc, CONTROLLER_DISCHARGING).fallback(self.default)
-            for entry in self.table_charging:
-                if battery_perc > entry.threshold:
-                    return entry.fallback(fallback)
+            for threshold, setting in self.table_charging:
+                if battery_perc <= threshold:
+                    return setting.fallback(fallback)
         
     def apply_config(self, controller: DualSense):
         """Apply lightbar colour, brightness and player led status as specified in the ControllerSetting."""
