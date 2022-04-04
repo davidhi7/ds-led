@@ -42,7 +42,7 @@ controller:
         player-leds: "11111"
 """)
 
-# locations where config files are looked for. First entries have the highest priority.
+# locations where config files are looked for. First entry has the highest priority and is tried first.
 CONFIG_LOCATIONS = [
     '/etc/ds-led.conf'
 ]

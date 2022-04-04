@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 class ControllerConfig:
     
     def __init__(self, config):
+        """Create new ControllerConfig object using the given configuration and parse setting values."""
         self.config = config
         self.tables = dict()
         self.fallbacks = dict()
@@ -33,7 +34,7 @@ class ControllerConfig:
         return settings_dict.items()
     
     def parse_setting(self, setting: dict) -> ControllerSetting:
-        """Parse"""
+        """Create a single ControllerSetting of a dictionary containing a colour, brightness and player-led value. Use None if no valid value is given."""
         return ControllerSetting(
             Colour(setting.get('colour')) if 'colour' in setting else None,
             setting.get('brightness'),
@@ -45,7 +46,7 @@ class ControllerConfig:
         if self.fallbacks[status] != None:
             fallback = self.get_setting(battery_perc, self.fallbacks[status])
         else:
-            # final fallback if all other fallback options failed
+            # final hardcoded fallback if all other fallback options failed
             fallback = ControllerSetting(Colour('#000000'), 0, 0)
         if status not in self.tables or self.tables[status] == None:
             return fallback

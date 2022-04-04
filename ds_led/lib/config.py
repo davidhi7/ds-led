@@ -19,6 +19,7 @@ class Colour:
             raise IllegalArgumentError(f"'{hex_str}': Invalid hexadecimal colour representation  given.")
     
     def to_hex_str(self):
+        """Return hexadecimal notation of the colour (e.g. '#ABCDEF')'."""
         return f'#{(self.red << 16) + (self.green << 8) + self.blue:06x}'.upper()
 
     def __str__(self):
