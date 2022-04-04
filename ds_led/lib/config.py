@@ -49,6 +49,18 @@ class ControllerSetting:
         player_leds_str = format(self.player_leds, 'b').zfill(5)
         return f'ControllerSetting(colour={self.colour}, brightness={self.brightness}, player-leds={player_leds_str})'
 
+class DefaultControllerSetting(ControllerSetting):
+
+    def __init__(self):
+        """Create ControllerSetting with hardcoded default values to use as fallback."""
+        self.colour = Colour('#000000')
+        self.brightness = 0
+        self.player_leds = 0
+
+    def __str__(self) -> str:
+        base_value = super().__str__()
+        return base_value.replace('ControllerSetting', 'DefaultControllerSetting')
+
 class Config:
 
     def __init__(self, config_file: Path):

@@ -1,5 +1,5 @@
 import logging
-from ds_led.lib.config import Config, ControllerSetting, Colour
+from ds_led.lib.config import Config, ControllerSetting, DefaultControllerSetting, Colour
 from ds_led.lib.controller import DualSense, CONTROLLER_CHARGING, CONTROLLER_DISCHARGING, CONTROLLER_FULL
 
 logger = logging.getLogger(__name__)
@@ -47,7 +47,8 @@ class ControllerConfig:
             fallback = self.get_setting(battery_perc, self.fallbacks[status])
         else:
             # final hardcoded fallback if all other fallback options failed
-            fallback = ControllerSetting(Colour('#000000'), 0, 0)
+            logger.warning(f'No valid controller setting specified, falling back to hardcoded value. (battery status = {battery_perc}, power status = {status})')
+            fallback = DefaultControllerSetting()
         if status not in self.tables or self.tables[status] == None:
             return fallback
         for threshold, setting in self.tables[status]:
