@@ -13,7 +13,7 @@ class ControllerConfig:
         self.fallbacks = dict()
         controller_config = config.data['controller']
         if 'default' in controller_config:
-            self.tables['Default'] = sorted({0: self.parse_setting(controller_config['default']), 100: self.parse_setting(controller_config['default'])}.items())
+            self.tables['Default'] = ( (100, self.parse_setting(controller_config['default'])), )
         if 'discharging' in controller_config:
             self.tables[CONTROLLER_DISCHARGING] = sorted(self.parse_settings_list(controller_config['discharging']), reverse=False)
         if 'charging' in controller_config:
