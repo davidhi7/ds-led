@@ -1,23 +1,29 @@
+import logging
 import subprocess
 import time
-import logging
 from pathlib import Path
+
+from ds_led.lib.config import Config
 from ds_led.lib.controller import DualSense
-from ds_led.lib.config import Config, ControllerSetting
 from ds_led.lib.controllerconfig import ControllerConfig
 
 logger = logging.getLogger(__name__)
 
+
 class Daemon:
 
-    def search_controllers(self, controllers: list) -> list:
+    @staticmethod
+    def search_controllers(controllers: list) -> list:
         """Update the provided list of controller objects."""
         # Remove no longer connected controllers from the list
-        for curent_controller in controllers:
-            if not curent_controller.verify_connection():
-                controllers.remove(curent_controller)
-        # Find all new device directories matching the pattern /sys/class/power_supply/ps-controller-battery-* that aren't already present in the list
-        out = subprocess.run("find /sys/class/power_supply -maxdepth 1 -name 'ps-controller-battery-*' | sed -z '$ s/\\n$//'", shell=True, capture_output=True, text=True)
+        for current_controller in controllers:
+            if not current_controller.verify_connection():
+                controllers.remove(current_controller)
+        # Find all new device directories matching the pattern /sys/class/power_supply/ps-controller-battery-* that
+        # aren't already present in the list
+        controller_discovery = "find /sys/class/power_supply -maxdepth 1 -name 'ps-controller-battery-*'" \
+                               "| sed -z '$s/\\n$//'"
+        out = subprocess.run(controller_discovery, shell=True, capture_output=True, text=True)
         if out.stdout != '':
             for power_supply in out.stdout.split('\n'):
                 power_supply_path = Path(power_supply)

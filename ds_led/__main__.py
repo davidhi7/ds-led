@@ -4,8 +4,10 @@ from ds_led.daemon import Daemon
 
 logger = logging.getLogger(__name__)
 
+
 def create_config(path_string):
     with open(path_string, 'w') as file:
+        # noinspection PyPep8
         file.write("""daemon:
   # Interval between checking the battery and writing controller settings
   interval: 15
@@ -42,20 +44,22 @@ controller:
         player-leds: "11111"
 """)
 
+
+def discover_config(locations: list[str]) -> str:
+    for path in locations:
+        if Path(path).is_file():
+            return path
+    fallback = locations[0]
+    logger.info(f'No configuration file found, creating one at {fallback}.')
+    create_config(fallback)
+    return fallback
+
+
 # locations where config files are looked for. First entry has the highest priority and is tried first.
 CONFIG_LOCATIONS = [
     '/etc/ds-led.conf'
 ]
 
-config_path = None
-for location in CONFIG_LOCATIONS:
-    if Path(location).is_file():
-        config_path = Path(location)
-        break
-    config_path_string = CONFIG_LOCATIONS[0]
-    logger.info(f'No configuration file found, creating one at {config_path_string}.')
-    create_config(config_path_string)
-    config_path = Path(config_path_string)
-
+config_path = Path(discover_config(CONFIG_LOCATIONS))
 daemon = Daemon()
 daemon.run(config_path)
