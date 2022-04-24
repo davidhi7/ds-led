@@ -32,15 +32,6 @@ class ControllerConfig:
         self.fallbacks[CONTROLLER_CHARGING] = CONTROLLER_DISCHARGING
         self.fallbacks[CONTROLLER_FULL] = CONTROLLER_DISCHARGING
 
-    def parse_settings_list(self, settings_list: dict) -> list:
-        """Parse list of 'threshold: Setting' configurations, returning an unsorted dictionary."""
-        settings_dict = dict()
-        for setting in settings_list:
-            key = list(setting.keys())[0]
-            value = self.parse_setting(setting[key])
-            settings_dict[key] = value
-        return list(settings_dict.items())
-
     def get_setting(self, battery_perc: int, status: str) -> ControllerSetting:
         """Return the ControllerSetting object for the given battery level and status (DualSense.CONTROLLER_{
         CHARGING, DISCHARGING, FULL}). """
@@ -60,6 +51,16 @@ class ControllerConfig:
         controller.set_rgb_colour(setting.colour)
         controller.set_rgb_brightness(setting.brightness)
         controller.set_player_leds(setting.player_leds)
+
+    @staticmethod
+    def parse_settings_list(settings_list: dict) -> list:
+        """Parse list of 'threshold: Setting' configurations, returning an unsorted dictionary."""
+        settings_dict = dict()
+        for setting in settings_list:
+            key = list(setting.keys())[0]
+            value = ControllerConfig.parse_setting(setting[key])
+            settings_dict[key] = value
+        return list(settings_dict.items())
 
     @staticmethod
     def parse_setting(setting: dict) -> ControllerSetting:
