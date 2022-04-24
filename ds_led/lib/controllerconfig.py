@@ -1,6 +1,7 @@
 import logging
 from ds_led.lib.config import ControllerSetting, DefaultControllerSetting, Colour
 from ds_led.lib.controller import DualSense, CONTROLLER_CHARGING, CONTROLLER_DISCHARGING, CONTROLLER_FULL
+from ds_led.lib.errors import InvalidConfigurationError
 
 logger = logging.getLogger(__name__)
 
@@ -12,9 +13,13 @@ class ControllerConfig:
         self.config = config
         self.tables = dict()
         self.fallbacks = dict()
+        if 'controller' not in config.data or config.data['controller'] is None:
+            raise InvalidConfigurationError('Configuration file lacks essential "controller" list.')
         controller_config = config.data['controller']
         if 'default' in controller_config:
             self.tables['Default'] = ((100, self.parse_setting(controller_config['default'])),)
+        else:
+            self.tables['Default'] = ((100, DefaultControllerSetting()),)
         if 'discharging' in controller_config:
             self.tables[CONTROLLER_DISCHARGING] = sorted(self.parse_settings_list(controller_config['discharging']),
                                                          reverse=False)
@@ -39,14 +44,9 @@ class ControllerConfig:
     def get_setting(self, battery_perc: int, status: str) -> ControllerSetting:
         """Return the ControllerSetting object for the given battery level and status (DualSense.CONTROLLER_{
         CHARGING, DISCHARGING, FULL}). """
+        fallback = None
         if self.fallbacks[status] is not None:
             fallback = self.get_setting(battery_perc, self.fallbacks[status])
-        else:
-            # final hardcoded fallback if all other fallback options failed
-            logger.warning(
-                f'No valid controller setting specified, falling back to hardcoded value. (battery status = '
-                f'{battery_perc}, power status = {status})')
-            fallback = DefaultControllerSetting()
         if status not in self.tables or self.tables[status] is None:
             return fallback
         for threshold, setting in self.tables[status]:
